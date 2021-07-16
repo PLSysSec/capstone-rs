@@ -4,9 +4,10 @@ use libc::c_uint;
 
 pub use crate::arch::arch_builder::arm64::*;
 use crate::arch::DetailsArchInsn;
-use capstone_sys::{arm64_op_mem, arm64_op_type, cs_arm64, cs_arm64_op};
-use crate::instruction::{RegId, RegIdInt};
+use capstone_sys::{cs_ac_type, arm64_op_mem, arm64_op_type, cs_arm64, cs_arm64_op};
+use crate::instruction::{RegAccessType, RegId, RegIdInt};
 use core::convert::From;
+use core::convert::TryInto;
 use core::{cmp, fmt, mem, slice};
 
 // Re-exports
@@ -90,6 +91,10 @@ pub struct Arm64Operand {
 
     /// Extender type of this operand
     pub ext: Arm64Extender,
+
+    /// How is this operand accessed? NOTE: this field is irrelevant if engine
+    /// is compiled in DIET mode.
+    pub access: Option<RegAccessType>,
 
     /// Operand type
     pub op_type: Arm64OperandType,
@@ -191,6 +196,7 @@ impl Default for Arm64Operand {
             vas: Arm64Vas::ARM64_VAS_INVALID,
             shift: Arm64Shift::Invalid,
             ext: Arm64Extender::ARM64_EXT_INVALID,
+            access: None,
             op_type: Arm64OperandType::Invalid
         }
     }
@@ -234,11 +240,13 @@ impl<'a> From<&'a cs_arm64_op> for Arm64Operand {
         } else {
             None
         };
+        let access = cs_ac_type(op.access as _).try_into().ok();
         Arm64Operand {
             vector_index,
             vas: op.vas,
             shift,
             ext: op.ext,
+            access,
             op_type,
         }
     }
