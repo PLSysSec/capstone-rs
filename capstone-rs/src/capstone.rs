@@ -375,17 +375,17 @@ impl Capstone {
             Err(Error::IrrelevantDataInDiet)
         } else {
             /*
-                * To assure that our returned InsnDetail's regs_*() accessors
-                * return the correct data, we need to call into cs_regs_access().
-                * This interface is unsafe even by C's own poor standards for
-                * itself: it takes no bounds and has essentially undefined
-                * behavior if the arrays passed in correspond to the (same-sized)
-                * arrays in the detail member of the cs_insn.  We therefore call
-                * into this interface with a scratch buffer on our stack and then
-                * manually copy it into the same structures in our underlying
-                * insn.  This could presumably be made less verbose, but given
-                * the degree of unsafety, we have erred on the side of caution...
-                */
+             * To assure that our returned InsnDetail's regs_*() accessors
+             * return the correct data, we need to call into cs_regs_access().
+             * This interface is unsafe even by C's own poor standards for
+             * itself: it takes no bounds and has essentially undefined
+             * behavior if the arrays passed in correspond to the (same-sized)
+             * arrays in the detail member of the cs_insn.  We therefore call
+             * into this interface with a scratch buffer on our stack and then
+             * manually copy it into the same structures in our underlying
+             * insn.  This could presumably be made less verbose, but given
+             * the degree of unsafety, we have erred on the side of caution...
+             */
             unsafe {
                 let mut rbuffer: [u16; 32] = [0; 32];
                 let mut wbuffer: [u16; 32] = [0; 32];
@@ -399,9 +399,12 @@ impl Capstone {
                 let regs_write_count: *mut u8 = &mut wcnt;
 
                 let err = cs_regs_access(
-                    self.csh(), &insn.insn,
-                    regs_read, regs_read_count,
-                    regs_write, regs_write_count
+                    self.csh(),
+                    &insn.insn,
+                    regs_read,
+                    regs_read_count,
+                    regs_write,
+                    regs_write_count,
                 );
 
                 if err != cs_err::CS_ERR_OK {

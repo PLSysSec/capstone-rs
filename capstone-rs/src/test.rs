@@ -251,7 +251,13 @@ fn test_instruction_detail_helper<T>(
             expected_op
         })
         .collect();
-    assert_eq!(expected_ops, arch_ops, "operands do not match for \"{}\" (bytes={:02x?})", insn, insn.bytes());
+    assert_eq!(
+        expected_ops,
+        arch_ops,
+        "operands do not match for \"{}\" (bytes={:02x?})",
+        insn,
+        insn.bytes()
+    );
 }
 
 /// Assert instruction belongs or does not belong to groups, testing both insn_belongs_to_group
@@ -3135,10 +3141,7 @@ fn test_arch_riscv_detail() {
             DII::new(
                 "c.addi",
                 b"\x05\x04",
-                &[
-                    Reg(RegId(RISCV_REG_X8 as RegIdInt)),
-                    Imm(1),
-                ],
+                &[Reg(RegId(RISCV_REG_X8 as RegIdInt)), Imm(1)],
             ),
             // c.add x8, x10
             DII::new(
@@ -3218,5 +3221,4 @@ fn test_insn_from_raw() {
         let from_raw_insn = unsafe { Insn::from_raw(raw_insn) };
         assert_eq!(format!("{:?}", from_raw_insn), format!("{:?}", insn));
     }
-
 }
